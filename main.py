@@ -65,12 +65,10 @@ class End_lose(arcade.View):
         self.window.show_view(game_view)
         
 
-
 #obrazovka při načtení hry
 class Start_view(arcade.View):
     def __init__(self):
         super().__init__()
-        
         self.end_lose_picture = arcade.load_texture('levels\\start.png')
         arcade.set_viewport(0, WIDTH, 0, HEIGHT)
         arcade.set_background_color(arcade.csscolor.BLACK)
@@ -79,7 +77,6 @@ class Start_view(arcade.View):
         arcade.start_render()
         self.end_lose_picture.draw_sized(WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT)
         
-
     def on_mouse_press(self, _x, _y, _button, _modifiers):
         game_view = Game()
         game_view.start_game()
@@ -93,15 +90,14 @@ class Game(arcade.View):
         self.player_list = None
         self.physics_engine = None
         self.ground_list = None
-        self.count_cakes = 0
+        self.count_score = 0
         self.time = TIMER
         self.view_bottom = 0
         self.view_left = 0
         self.level = 1
         self.theme = None
-        self.num = 0
 
-        #hudba
+        #zvuky
         self.jump_sound = arcade.load_sound("resources:sounds/coin1.wav")
         arcade.play_sound(self.jump_sound)
         self.start_game()
@@ -129,7 +125,6 @@ class Game(arcade.View):
         self.player.walk_right_textures.append(arcade.load_texture('images\\robot_walk6.png'))
         self.player.walk_right_textures.append(arcade.load_texture('images\\robot_walk7.png'))
 
-
         self.player.walk_left_textures = []
         self.player.walk_left_textures.append(arcade.load_texture('images\\robot_walk0.png', mirrored=True))
         self.player.walk_left_textures.append(arcade.load_texture('images\\robot_walk1.png', mirrored=True))
@@ -151,8 +146,6 @@ class Game(arcade.View):
 
         self.load_level(self.level)
         
-
-
     
     def load_level(self, level):
         #nastavení barev pozadí pro jednotlivé levely
@@ -200,9 +193,8 @@ class Game(arcade.View):
         self.water.draw()
         self.rival.draw()
         
-
         #vypisuje skore
-        arcade.draw_text(f"Score: {self.count_cakes}", arcade.get_viewport()[0], arcade.get_viewport()[2] + 5, arcade.color.WHITE, font_size=25)
+        arcade.draw_text(f"Score: {self.count_score}", arcade.get_viewport()[0], arcade.get_viewport()[2] + 5, arcade.color.WHITE, font_size=25)
 
         #vypisuje zbývající čas
         seconds = int(self.time) % 60
@@ -210,7 +202,6 @@ class Game(arcade.View):
 
         #vypisuje informaci o levelu
         arcade.draw_text(f"Level: {self.level}", arcade.get_viewport()[0] + 800, arcade.get_viewport()[2] + 550, arcade.color.WHITE, font_size=30)
-
         
 
     #ovládání hry
@@ -244,44 +235,42 @@ class Game(arcade.View):
             self.player.change_y = -1
 
         #pohyb protivníka
-        for ri in self.rival:
+        for one_rival in self.rival:
             if int(self.time) % 2 == 0:
-                ri.right += 2
+                one_rival.right += 2
             else:
-                ri.right -= 2
+                one_rival.right -= 2
 
         #pohyb coin
-        for star in self.coin:
+        for one_coin in self.coin:
             if int(self.time) % 2 == 0:
-                star.angle += 0.2
+                one_coin.angle += 0.5
             else:
-                star.angle -= 0.2
-        
+                one_coin.angle -= 0.5
 
-        #nastavení posunu doprava
         scroll_map = False
 
-        #doprava
+        #nastavení posunu mapy - pravá
         right_boundary = self.view_left + WIDTH - RIGHT_SCROLL
         if self.player.right > right_boundary:
             if self.player.right < 6900:
                 self.view_left += self.player.right - right_boundary
                 scroll_map = True
 
-        #doleva
+        #nastavení posunu mapy - levá
         left_boundary = self.view_left + 20
         if self.player.left < left_boundary:
             if self.player.right < 6900:
                 self.view_left -= left_boundary - self.player.left
                 scroll_map = True
 
-        #nahoru
+        #nastavení posunu mapy - nahoru
         top_boundary = self.view_bottom + HEIGHT - 40
         if self.player.top > top_boundary:
             self.view_bottom += self.player.top - top_boundary
             scroll_map = True
 
-        #dolů
+        #nastavení posunu mapy - dolů
         bottom_boundary = self.view_bottom + 150
 
         if self.player.bottom < bottom_boundary:
@@ -314,10 +303,10 @@ class Game(arcade.View):
             self.window.show_view(view)
             
         
-        #sbírání
-        cake_hit = arcade.check_for_collision_with_list(self.player, self.coin)
-        for coin in cake_hit:
-            self.count_cakes += 1
+        #sbírání peněz
+        coin_hit = arcade.check_for_collision_with_list(self.player, self.coin)
+        for coin in coin_hit:
+            self.count_score += 1
             coin.kill()
 
 
@@ -348,7 +337,6 @@ class Game(arcade.View):
 
 
 def main():
-    
     window = arcade.Window(WIDTH, HEIGHT, TITLE)
     start_view = Start_view()
     window.show_view(start_view)
