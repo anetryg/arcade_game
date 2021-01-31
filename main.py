@@ -17,7 +17,7 @@ MAP_HEIGHT = 12
 WIDTH = PIXEL_SIZE * MAP_WIDTH
 HEIGHT = PIXEL_SIZE * MAP_HEIGHT
 TITLE  = ""
-SPEED = 3
+SPEED = 4
 JUMP = 7
 GRAVITATION = 0.3
 CHARACTER_SIZE = 1
@@ -98,8 +98,10 @@ class Game(arcade.View):
         self.theme = None
 
         #zvuky
-        self.jump_sound = arcade.load_sound("resources:sounds/coin1.wav")
-        arcade.play_sound(self.jump_sound)
+        self.coin_sound = arcade.load_sound("sounds\\coin_sound.wav")
+        self.win_sound = arcade.load_sound("sounds\\win_sound.wav")
+        self.lose_sound = arcade.load_sound("sounds\\lose_sound.wav")
+
         self.start_game()
         
 
@@ -290,17 +292,21 @@ class Game(arcade.View):
         #pokud spadne postava do vody
         water_hit = arcade.check_for_collision_with_list(self.player, self.water)
         if water_hit:
+            arcade.play_sound(self.lose_sound)
             time.sleep(0.3)
             view = End_lose()
             self.window.show_view(view)
+            
             
 
         #pokud narazí do tanku
         rival_hit = arcade.check_for_collision_with_list(self.player, self.rival)
         if rival_hit:
+            arcade.play_sound(self.lose_sound)
             time.sleep(0.3)
             view = End_lose()
             self.window.show_view(view)
+            
             
         
         #sbírání peněz
@@ -308,13 +314,13 @@ class Game(arcade.View):
         for coin in coin_hit:
             self.count_score += 1
             coin.kill()
+            arcade.play_sound(self.coin_sound)
 
 
         #pokud dojde do domečku
         house_end = arcade.check_for_collision_with_list(self.player, self.house)
         for house in house_end:
             if self.level < 3:
-                
                 self.level += 1
                 self.load_level(self.level)
                 self.player.center_x = 200
@@ -323,17 +329,21 @@ class Game(arcade.View):
                 self.player.change_y = 0
                 arcade.set_viewport(0, WIDTH, 0, HEIGHT)
                 self.time = 50
+                arcade.play_sound(self.win_sound)
             else:
                 time.sleep(0.9)
                 view = End_win()
                 self.window.show_view(view)
+                arcade.play_sound(self.win_sound)
 
 
         #pokud vyprší čas
         if int(self.time) % 60 == 0:
+            arcade.play_sound(self.lose_sound)
             time.sleep(0.3)
             view = End_lose()
             self.window.show_view(view)
+
 
 
 def main():
